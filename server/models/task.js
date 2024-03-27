@@ -10,23 +10,23 @@ module.exports = (sequelize, DataTypes) => {
 		static associate(models) {
 			// define association here
 			Task.belongsTo(models.User, { foreignKey: "UserId" });
-			Task.belongsTo(models.SubTask, { foreignKey: "SubtaskId" });
+			Task.hasMany(models.SubTask, { foreignKey: "TaskId" });
 		}
 	}
 	Task.init(
 		{
-			name: {
+			title: {
 				type: DataTypes.STRING,
 				allowNull: false,
 				unique: {
-					msg: "Task with that name already exists",
+					msg: "Task with that title already exists",
 				},
 				validate: {
 					notNull: {
-						msg: "Name is required",
+						msg: "title subtask is required",
 					},
 					notEmpty: {
-						msg: "Name is required",
+						msg: "title subtask is required",
 					},
 				},
 			},
@@ -50,7 +50,6 @@ module.exports = (sequelize, DataTypes) => {
 				},
 			},
 			UserId: DataTypes.INTEGER,
-			SubtaskId: DataTypes.INTEGER,
 		},
 		{
 			sequelize,

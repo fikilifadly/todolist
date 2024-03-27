@@ -105,4 +105,27 @@ module.exports = class TaskController {
 			next(error);
 		}
 	}
+
+	static async completeTask(req, res, next) {
+		try {
+			const { id } = req.params;
+			const data = await Task.findOne({
+				where: {
+					id,
+					UserId: req.user.id,
+				},
+			});
+
+			if (!data) throw { name: "Task not found", status: 404 };
+
+			if (data.subtasks.length > 0) {
+				if (!data.subtasks.includes({ status: "ongoing" })) {
+					await data.update({ status: "completed" });
+					await data.save();
+				}
+			}
+		} catch (error) {
+			next(error);
+		}
+	}
 };

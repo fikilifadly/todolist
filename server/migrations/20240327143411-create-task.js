@@ -9,7 +9,7 @@ module.exports = {
 				primaryKey: true,
 				type: Sequelize.INTEGER,
 			},
-			name: {
+			title: {
 				type: Sequelize.STRING,
 			},
 			description: {
@@ -26,15 +26,6 @@ module.exports = {
 				references: {
 					model: {
 						tableName: "Users",
-					},
-					key: "id",
-				},
-			},
-			SubtaskId: {
-				type: Sequelize.INTEGER,
-				references: {
-					model: {
-						tableName: "SubTasks",
 					},
 					key: "id",
 				},

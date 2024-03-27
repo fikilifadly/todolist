@@ -9,29 +9,44 @@ module.exports = (sequelize, DataTypes) => {
 		 */
 		static associate(models) {
 			// define association here
-			SubTask.hasMany(models.Task, { foreignKey: "SubtaskId" });
+			SubTask.belongsTo(models.Task, { foreignKey: "TaskId" });
 		}
 	}
 	SubTask.init(
 		{
-			name: {
+			title: {
 				type: DataTypes.STRING,
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: "Name is required",
+						msg: "title task is required",
 					},
 					notEmpty: {
-						msg: "Name is required",
+						msg: "title task is required",
 					},
 				},
 			},
 			description: DataTypes.STRING,
+			status: {
+				type: DataTypes.STRING,
+				defaultValue: "ongoing",
+			},
+			TaskId: DataTypes.INTEGER,
 		},
 		{
 			sequelize,
 			modelName: "SubTask",
 		}
 	);
+
+	SubTask.afterUpdate = async (subtask, options) => {
+		const allSubtasks = await SubTask.findAll({ where: { TaskId: subtask.TaskId } });
+		if (allSubtasks.every((el) => el.status === "completed")) {
+			const task = await Model.Task.findByPk(subtask.TaskId);
+			task.status = "completed";
+			await task.save();
+		}
+	};
+
 	return SubTask;
 };
