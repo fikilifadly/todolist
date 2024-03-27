@@ -1,4 +1,3 @@
-const e = require("cors");
 const { hashPass, comparePass, signToken } = require("../lib");
 const { User } = require("../models");
 module.exports = class UserController {
@@ -59,6 +58,31 @@ module.exports = class UserController {
 			});
 
 			res.status(201).json({ message: "Register Success" });
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	static async editProfile(req, res, next) {
+		try {
+			const { id } = req.user;
+			console.log(id, "====");
+			const user = await User.findOne({
+				where: {
+					id,
+				},
+			});
+			if (!user) throw { name: "User not found", status: 404 };
+
+			if (!req.body) throw { name: "Theres nothing to update", status: 400 };
+			const { name, email, password } = req.body;
+			if (!name && !email && !password) throw { name: "Theres nothing to update", status: 400 };
+
+			let newUser = Object.fromEntries(Object.entries(req.body).filter(([key, value]) => key in user && value !== undefined && value !== null && value !== ""));
+
+			await user.update(newUser);
+			await user.save();
+			res.status(200).json({ message: `User: ${user.name} has been updated` });
 		} catch (error) {
 			next(error);
 		}

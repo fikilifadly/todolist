@@ -18,6 +18,9 @@ module.exports = (sequelize, DataTypes) => {
 			name: {
 				type: DataTypes.STRING,
 				allowNull: false,
+				unique: {
+					msg: "Task with that name already exists",
+				},
 				validate: {
 					notNull: {
 						msg: "Name is required",
