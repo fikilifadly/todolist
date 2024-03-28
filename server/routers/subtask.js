@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.use(authentication);
 router.get("/", SubtaskController.getSubtasks);
+router.get("/:id", SubtaskController.getSubTaskById);
 router.post("/", SubtaskController.addSubtask);
 router.patch("/:id", SubtaskController.editSubtask);
 router.delete("/:id", SubtaskController.deleteSubtask);

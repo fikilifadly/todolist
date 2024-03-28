@@ -17,6 +17,21 @@ module.exports = class SubtaskController {
 		}
 	}
 
+	static async getSubTaskById(req, res, next) {
+		try {
+			const { id } = req.params;
+			const data = await SubTask.findOne({
+				where: {
+					id,
+					UserId: req.user.id,
+				},
+			});
+			res.status(200).json(data);
+		} catch (error) {
+			next(error);
+		}
+	}
+
 	static async addSubtask(req, res, next) {
 		try {
 			if (!req.body) {

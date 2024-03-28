@@ -3,13 +3,23 @@ const { Task, SubTask } = require("../models");
 module.exports = class TaskController {
 	static async getTasks(req, res, next) {
 		try {
+			const { isComplete } = req.query;
+			console.log(isComplete, typeof isComplete, "======");
+
+			let condition = {
+				UserId: req.user.id,
+			};
+
+			console.log(condition, " =========");
+			if (isComplete != undefined) {
+				condition.status = isComplete === "true" ? "complete" : "ongoing";
+			}
+
 			const data = await Task.findAll({
 				include: {
 					model: SubTask,
 				},
-				where: {
-					UserId: req.user.id,
-				},
+				where: condition,
 			});
 			res.status(200).json(data);
 		} catch (error) {
