@@ -3,7 +3,7 @@ import axios from "axios";
 export const AxiosJSON = axios.create({
 	baseURL: "http://localhost:3000",
 	headers: {
-		Authorization: `Bearer ${localStorage.access_token}`,
+		Authorization: `Bearer ${localStorage.access_token ? localStorage.access_token : localStorage.getItem("access_token")}`,
 		"content-type": "application/json",
 	},
 });
@@ -24,4 +24,19 @@ export const dateFormat = (date) => {
 	date = new Date(date);
 	date = date.toISOString().split("T")[0];
 	return date;
+};
+
+export const progressComplete = (data) => {
+	let count = 0;
+	for (const task of data) {
+		if (task.progress == "complete") {
+			count++;
+		}
+	}
+
+	if (count > 0) {
+		return (data / count) * 100;
+	}
+
+	return count;
 };

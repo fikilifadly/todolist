@@ -5,13 +5,13 @@ import { toast } from "react-toastify";
 const userSlice = createSlice({
 	name: "user",
 	initialState: {
-		currentuser: null,
+		currentUser: null,
 		loading: true,
 		errorMessage: "",
 	},
 	reducers: {
 		setNullCurrentUser: (state) => {
-			state.currentuser = null;
+			state.currentUser = null;
 		},
 	},
 	extraReducers: (builder) => {
@@ -20,14 +20,20 @@ const userSlice = createSlice({
 				state.loading = true;
 			})
 			.addCase(login.fulfilled, (state, { payload }) => {
-				state.currentuser = payload;
+				console.log(payload);
+				state.currentUser = payload.name;
 				state.loading = false;
-				toast.success(payload.message);
+				toast.success("login Success");
 			})
-			.addCase(login.rejected, (state, action) => {
+			.addCase(login.rejected, (state, { payload }) => {
+				console.log(payload, "=====");
 				state.loading = false;
-				state.errorMessage = action.error.message;
-				toast.error(state.errorMessage);
+				if (payload.message == "rejected") {
+					state.errorMessage = "Something wrong, please refresh";
+				} else {
+					state.errorMessage = payload.message;
+					toast.error(state.errorMessage);
+				}
 			});
 
 		builder
@@ -35,13 +41,13 @@ const userSlice = createSlice({
 				state.loading = true;
 			})
 			.addCase(register.fulfilled, (state, { payload }) => {
-				state.currentuser = payload;
+				state.currentUser = payload;
 				state.loading = false;
 				toast.success(payload.message);
 			})
-			.addCase(register.rejected, (state, action) => {
+			.addCase(register.rejected, (state, { payload }) => {
 				state.loading = false;
-				state.errorMessage = action.error.message;
+				state.errorMessage = payload.message;
 				toast.error(state.errorMessage);
 			});
 
@@ -50,14 +56,28 @@ const userSlice = createSlice({
 				state.loading = true;
 			})
 			.addCase(editProfile.fulfilled, (state, { payload }) => {
-				state.currentuser = payload;
+				state.currentUser = payload;
 				state.loading = false;
 				toast.success(payload.message);
 			})
-			.addCase(editProfile.rejected, (state, action) => {
+			.addCase(editProfile.rejected, (state, { payload }) => {
 				state.loading = false;
-				state.errorMessage = action.error.message;
+				state.errorMessage = payload.message;
 				toast.error(state.errorMessage);
+			});
+
+		builder
+			.addCase(getProfile.pending, (state) => {
+				state.loading = true;
+			})
+			.addCase(getProfile.fulfilled, (state, { payload }) => {
+				console.log(payload, " ===");
+				state.currentUser = payload;
+				state.loading = false;
+			})
+			.addCase(getProfile.rejected, (state, { payload }) => {
+				state.loading = false;
+				state.errorMessage = payload.message;
 			});
 	},
 });
@@ -69,6 +89,13 @@ export const login = createAsyncThunk("user/login", async (data, { rejectWithVal
 			url: "/user/login",
 			data,
 		});
+
+		if (result) {
+			localStorage.setItem("access_token", result.access_token);
+
+			AxiosJSON.defaults.headers.common["Authorization"] = `Bearer ${result.access_token}`;
+			console.log(AxiosJSON.defaults.headers, "==== token");
+		}
 		return result;
 	} catch (error) {
 		return rejectWithValue(error.response.data);
@@ -94,6 +121,17 @@ export const editProfile = createAsyncThunk("user/editProfile", async (data, { r
 			method: "POST",
 			url: "/user/editProfile",
 			data,
+		});
+		return result;
+	} catch (error) {
+		return rejectWithValue(error.response.data);
+	}
+});
+
+export const getProfile = createAsyncThunk("user/getProfile", async (data, { rejectWithValue }) => {
+	try {
+		const { data: result } = await AxiosJSON({
+			url: "/user/profile",
 		});
 		return result;
 	} catch (error) {
