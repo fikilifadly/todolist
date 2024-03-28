@@ -144,4 +144,68 @@ module.exports = class SubtaskController {
 			next(error);
 		}
 	}
+
+	static async competeSubtask(req, res, next) {
+		try {
+			const { id } = req.params;
+
+			const data = await SubTask.findOne({
+				include: {
+					model: Task,
+					where: {
+						UserId: req.user.id,
+					},
+				},
+				where: {
+					id,
+				},
+			});
+
+			const { TaskId } = data;
+
+			if (!data) throw { name: "Subtask not found", status: 404 };
+
+			await SubTask.update(
+				{
+					status: "complete",
+				},
+				{
+					where: {
+						id,
+					},
+					individualHooks: true,
+				}
+			);
+
+			const allSubtasksTaskId = await SubTask.findAll({
+				where: {
+					TaskId,
+				},
+			});
+
+			if (allSubtasksTaskId.every((task) => task.status === "complete")) {
+				await Task.update(
+					{
+						status: "complete",
+					},
+					{
+						where: {
+							id: TaskId,
+						},
+						individualHooks: true,
+					}
+				);
+			}
+
+			// console.log(task, task.subtask.includes({ status: "ongoing" }), "===========");
+			// if (!task.subtask.includes({ status: "ongoing" })) {
+			// 	await task.update({ status: "complete" });
+			// 	await task.save();
+			// }
+
+			res.status(200).json({ message: `Subtask ${data.title} completed successfully` });
+		} catch (error) {
+			next(error);
+		}
+	}
 };

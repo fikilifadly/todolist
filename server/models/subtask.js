@@ -39,13 +39,22 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	);
 
-	SubTask.afterUpdate = async (subtask, options) => {
+	SubTask.afterSave = async (subtask, options) => {
+		console.log("masuk sini substack ============");
 		const allSubtasks = await SubTask.findAll({ where: { TaskId: subtask.TaskId } });
 		if (allSubtasks.every((el) => el.status === "completed")) {
 			const task = await Model.Task.findByPk(subtask.TaskId);
 			task.status = "completed";
 			await task.save();
 		}
+	};
+
+	SubTask.beforeUpdate = async (subtask, options) => {
+		console.log("2 ============");
+	};
+
+	SubTask.afterUpdate = async (subtask, options) => {
+		console.log("3 ============");
 	};
 
 	return SubTask;

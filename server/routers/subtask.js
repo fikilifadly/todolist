@@ -8,6 +8,7 @@ router.use(authentication);
 router.get("/", SubtaskController.getSubtasks);
 router.get("/:id", SubtaskController.getSubTaskById);
 router.post("/", SubtaskController.addSubtask);
+router.patch("/status/:id", SubtaskController.competeSubtask);
 router.patch("/:id", SubtaskController.editSubtask);
 router.delete("/:id", SubtaskController.deleteSubtask);
 

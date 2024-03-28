@@ -1,18 +1,18 @@
+const { where } = require("sequelize");
 const { Task, SubTask } = require("../models");
 
 module.exports = class TaskController {
 	static async getTasks(req, res, next) {
 		try {
-			const { isComplete } = req.query;
-			console.log(isComplete, typeof isComplete, "======");
+			const { status } = req.query;
 
 			let condition = {
 				UserId: req.user.id,
 			};
 
-			console.log(condition, " =========");
-			if (isComplete != undefined) {
-				condition.status = isComplete === "true" ? "complete" : "ongoing";
+			if (status) {
+				console.log(status, condition, " =========");
+				condition["status"] = status;
 			}
 
 			const data = await Task.findAll({
@@ -20,7 +20,10 @@ module.exports = class TaskController {
 					model: SubTask,
 				},
 				where: condition,
+				order: [["id", "ASC"]],
 			});
+			console.log(status, status != undefined, condition);
+
 			res.status(200).json(data);
 		} catch (error) {
 			next(error);
@@ -108,7 +111,7 @@ module.exports = class TaskController {
 			await data.update(newData);
 			await data.save();
 
-			res.status(200).json({ message: `Task ${data.name} successfully updated` });
+			res.status(200).json({ message: `Task ${data.title} successfully updated` });
 		} catch (error) {
 			next(error);
 		}
@@ -117,6 +120,7 @@ module.exports = class TaskController {
 	static async deleteTask(req, res, next) {
 		try {
 			const { id } = req.params;
+			console.log(id, "==== id");
 			const data = await Task.findOne({
 				where: {
 					id,
@@ -124,8 +128,15 @@ module.exports = class TaskController {
 				},
 			});
 			if (!data) throw { name: "Task not found", status: 404 };
-			await data.destroy();
-			res.status(200).json({ message: `Task ${data.name} successfully deleted` });
+			const { title } = data;
+
+			await Task.destroy({
+				where: {
+					id,
+				},
+			});
+
+			res.status(200).json({ message: `Task ${title} successfully deleted` });
 		} catch (error) {
 			next(error);
 		}
