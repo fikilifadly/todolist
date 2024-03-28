@@ -95,12 +95,40 @@ const taskSlice = createSlice({
 				state.errorMessage = action.error.message;
 				toast.error(state.errorMessage);
 			});
+
+		builder
+			.addCase(completeTask.pending, (state) => {
+				state.loading = true;
+			})
+			.addCase(completeTask.fulfilled, (state) => {
+				state.errorMessage = "";
+				state.loading = false;
+				toast.success("Task Completed");
+			})
+			.addCase(completeTask.rejected, (state, action) => {
+				state.loading = false;
+				state.errorMessage = action.error.message;
+				toast.error(state.errorMessage);
+			});
 	},
 });
 
 export const getTasks = createAsyncThunk("task/getTasks", async (data, { rejectWithValue }) => {
 	try {
-		const { data: task } = await AxiosJSON.get("/task");
+		let url = "/task";
+
+		if (data) {
+			url = url + "?isComplete=true";
+		} else {
+			url = url + "?isComplete=false";
+		}
+
+		console.log(url, "====");
+
+		const { data: task } = await AxiosJSON({
+			method: "GET",
+			url,
+		});
 		return task;
 	} catch (err) {
 		return rejectWithValue(err.response.data);
@@ -137,6 +165,21 @@ export const deleteTask = createAsyncThunk("task/deleteTask", async (data, { rej
 export const getTaskById = createAsyncThunk("task/getTaskById", async (id, { rejectWithValue }) => {
 	try {
 		const { data: task } = await AxiosJSON.get(`/task/${id}`);
+		return task;
+	} catch (err) {
+		return rejectWithValue(err.response.data);
+	}
+});
+
+export const completeTask = createAsyncThunk("task/completeTask", async (id, { rejectWithValue }) => {
+	try {
+		const { data: task } = await AxiosJSON({
+			method: "PATCH",
+			url: `/task/${id}`,
+			data: {
+				status: "complete",
+			},
+		});
 		return task;
 	} catch (err) {
 		return rejectWithValue(err.response.data);

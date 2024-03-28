@@ -1,6 +1,18 @@
-import { dateFormat, progressComplete } from "../utils";
+import { getTaskById } from "../stores/taks_slice";
+import { dateFormat, progressComplete, showModalHandler } from "../utils";
 
-const TaskCard = ({ data }) => {
+const TaskCard = ({ data, idModal, completeHandler }) => {
+	const ctaHandler = (e) => {
+		const { id, action } = e.target.dataset;
+		getTaskById(id);
+		if (action === "edit") {
+			// console.log(currentClient, "from table====");
+			showModalHandler();
+		} else {
+			showModalHandler(idModal);
+		}
+	};
+
 	return (
 		<div className="card w-96 bg-base-100 shadow-xl">
 			<div className="card-body">
@@ -35,9 +47,18 @@ const TaskCard = ({ data }) => {
 						</div>
 					</div>
 				</div>
-				<div className="card-actions justify-end">
-					<button className="btn btn-primary">edit</button>
-					<button className="btn btn-primary">delete</button>
+				<div className="flex justify-between">
+					<div className="card-actions">
+						<input type="checkbox" className="checkbox border border-green-500" data-id={data.id} onChange={completeHandler} key={data.id} />
+					</div>
+					<div className="card-actions justify-end">
+						<button className="btn btn-primary" data-id={data.id} data-action="edit" onClick={ctaHandler}>
+							edit
+						</button>
+						<button className="btn btn-primary" data-id={data.id} data-action="delete" onClick={ctaHandler}>
+							delete
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>

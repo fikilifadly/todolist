@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addTask, deleteTask, getTaskById, getTasks, setNullCurrentRoom, updateTask } from "../stores/taks_slice";
+import { addTask, completeTask, deleteTask, getTaskById, getTasks, setNullCurrentRoom, updateTask } from "../stores/taks_slice";
 import Modal from "../components/Modal";
 import { removeModalHandler, showModalHandler } from "../utils";
 import Cards from "../components/Cards";
@@ -16,7 +16,7 @@ const Taks = () => {
 
 	const dispatch = useDispatch();
 	useEffect(() => {
-		dispatch(getTasks());
+		dispatch(getTasks(false));
 	}, []);
 
 	const submitModalHandler = (e) => {
@@ -65,6 +65,16 @@ const Taks = () => {
 		});
 	};
 
+	const completeHandler = (e) => {
+		const { id } = e.target.dataset;
+
+		dispatch(completeTask(id)).then((res) => {
+			if (res.payload) {
+				dispatch(getTasks());
+			}
+		});
+	};
+
 	return (
 		<div className="flex flex-col gap-5">
 			<div className="flex justify-between items-center">
@@ -74,7 +84,7 @@ const Taks = () => {
 				</button>
 			</div>
 			{/* <Table fields={roomFields} data={rooms} loading={loading} idModal="deleteRoom" getDataByIdHandler={getTaskByIdHandler} /> */}
-			<Cards data={tasks} type="task" />
+			<Cards data={tasks} idModal="deleteTask" completeHandler={completeHandler} getDataByIdHandler={getTaskByIdHandler} type="task" />
 			<Modal title="Task Form">
 				<form className="flex flex-col" onSubmit={submitModalHandler}>
 					{taskField.map((el, i) => {
@@ -90,7 +100,7 @@ const Taks = () => {
 					</button>
 				</form>
 			</Modal>
-			<Modal id="deleteRoom">
+			<Modal id="deleteTask">
 				<div className="getflex flex-col gap-5">
 					<p className="block">Are you sure want to delete {currentTask?.title}?</p>
 					<div className="flex justify-end gap-2">
