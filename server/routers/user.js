@@ -8,6 +8,7 @@ router.post("/login", UserController.login);
 router.post("/register", UserController.register);
 
 router.use(authentication);
+router.get("/profile", UserController.getProfile);
 router.patch("/edit", UserController.editProfile);
 
 module.exports = router;

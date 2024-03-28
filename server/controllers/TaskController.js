@@ -17,13 +17,28 @@ module.exports = class TaskController {
 		}
 	}
 
+	static async getTaskById(req, res, next) {
+		try {
+			const { id } = req.params;
+			const data = await Task.findOne({
+				where: {
+					id,
+					UserId: req.user.id,
+				},
+			});
+			res.status(200).json(data);
+		} catch (error) {
+			next(error);
+		}
+	}
+
 	static async addTask(req, res, next) {
 		try {
 			if (!req.body) {
 				throw { name: "Bad Request", status: 400 };
 			}
 
-			const { name, description, due_date, status } = req.body;
+			const { title, description, due_date, status } = req.body;
 
 			if (new Date(due_date) < new Date()) {
 				throw { name: "Due date can't be less than today", status: 400 };
@@ -31,16 +46,16 @@ module.exports = class TaskController {
 
 			const data = await Task.findOne({
 				where: {
-					name,
+					title,
 					UserId: req.user.id,
 				},
 			});
 
 			if (data) throw { name: "Task with that name already exists", status: 400 };
 
-			if (!name) throw { name: "Name Task is required", status: 400 };
+			if (!title) throw { name: "Name Task is required", status: 400 };
 			await Task.create({
-				name,
+				title,
 				description: description?.description,
 				UserId: req.user.id,
 				due_date,
