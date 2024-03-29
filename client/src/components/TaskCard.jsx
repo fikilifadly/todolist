@@ -17,7 +17,7 @@ const TaskCard = ({ data, idModal, completeHandler, completeHandlerSubtask, getD
 			<div className="card-body">
 				<h2 className="card-title">{data.title}</h2>
 				<p>{data.description && data.description}</p>
-				<ul className="my-2">
+				<ul className="my-2 flex flex-col gap-1">
 					{data.SubTasks?.length > 0 ? (
 						data.SubTasks.map((subtask, i) => (
 							<li key={i} className="list-decimal">

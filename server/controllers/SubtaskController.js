@@ -21,9 +21,14 @@ module.exports = class SubtaskController {
 		try {
 			const { id } = req.params;
 			const data = await SubTask.findOne({
+				include: {
+					model: Task,
+					where: {
+						UserId: req.user.id,
+					},
+				},
 				where: {
 					id,
-					UserId: req.user.id,
 				},
 			});
 			res.status(200).json(data);
@@ -96,9 +101,12 @@ module.exports = class SubtaskController {
 			const isUnique = await SubTask.findOne({
 				include: {
 					model: Task,
+					where: {
+						UserId: req.user.id,
+					},
 				},
 				where: {
-					title,
+					title: title ? title : subtask.title,
 				},
 			});
 

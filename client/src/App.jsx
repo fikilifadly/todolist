@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Register from "./pages/Register";
 import Taks from "./pages/Taks";
 import Auth from "./layouts/Auth";
+import SubTask from "./pages/SubTask";
 
 const router = createBrowserRouter([
 	{
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
 			{
 				path: "/tasks",
 				element: <Taks />,
+			},
+			{
+				path: "/subtasks",
+				element: <SubTask />,
 			},
 		],
 	},

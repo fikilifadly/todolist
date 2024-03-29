@@ -1,5 +1,4 @@
 const Card = ({ data }) => {
-	console.log(data, data.length, "==== card");
 	return (
 		<>
 			<div className="flex flex-col justify-between p-5 shadow-[0px_6px_24px_0px_rgba(0,0,0,0.05),0px_0px_0px_1.5px_rgba(0,0,0,0.08)] rounded-md">

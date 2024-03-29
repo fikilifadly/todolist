@@ -10,7 +10,6 @@ import { completeSubTask } from "../stores/subtaks_slice";
 const taskField = [
 	["title", "text"],
 	["description", "text"],
-	["SubStack", "text"],
 	["due_date", "date"],
 ];
 

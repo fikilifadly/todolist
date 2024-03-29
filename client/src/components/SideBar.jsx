@@ -29,6 +29,11 @@ const SideBar = () => {
 							<span className="text-md">Tasks</span>
 						</NavLink>
 					</li>
+					<li>
+						<NavLink to="/subtasks" className={isActive}>
+							<span className="text-md">Sub Tasks</span>
+						</NavLink>
+					</li>
 				</ul>
 			</nav>
 

@@ -20,13 +20,11 @@ const userSlice = createSlice({
 				state.loading = true;
 			})
 			.addCase(login.fulfilled, (state, { payload }) => {
-				console.log(payload);
 				state.currentUser = payload.name;
 				state.loading = false;
 				toast.success("login Success");
 			})
 			.addCase(login.rejected, (state, { payload }) => {
-				console.log(payload, "=====");
 				state.loading = false;
 				if (payload.message == "rejected") {
 					state.errorMessage = "Something wrong, please refresh";
@@ -71,7 +69,6 @@ const userSlice = createSlice({
 				state.loading = true;
 			})
 			.addCase(getProfile.fulfilled, (state, { payload }) => {
-				console.log(payload, " ===");
 				state.currentUser = payload;
 				state.loading = false;
 			})

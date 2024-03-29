@@ -36,11 +36,11 @@ const subTaskSlice = createSlice({
 			.addCase(addSubTask.fulfilled, (state, { payload }) => {
 				state.errorMessage = "";
 				state.loading = false;
-				toast.success(payload.data.message);
+				toast.success(payload.message);
 			})
-			.addCase(addSubTask.rejected, (state, action) => {
+			.addCase(addSubTask.rejected, (state, { payload }) => {
 				state.loading = false;
-				state.errorMessage = action.error.message;
+				state.errorMessage = payload.message;
 				toast.error(state.errorMessage);
 			});
 
@@ -51,11 +51,12 @@ const subTaskSlice = createSlice({
 			.addCase(updateSubTask.fulfilled, (state, { payload }) => {
 				state.errorMessage = "";
 				state.loading = false;
-				toast.success(payload.data.message);
+				toast.success(payload.message);
 			})
-			.addCase(updateSubTask.rejected, (state, action) => {
+			.addCase(updateSubTask.rejected, (state, { payload }) => {
+				console.log(payload, "==== rejected");
 				state.loading = false;
-				state.errorMessage = action.error.message;
+				state.errorMessage = payload.message;
 				toast.error(state.errorMessage);
 			});
 
@@ -66,11 +67,11 @@ const subTaskSlice = createSlice({
 			.addCase(deleteSubTask.fulfilled, (state, { payload }) => {
 				state.errorMessage = "";
 				state.loading = false;
-				toast.success(payload.data.message);
+				toast.success(payload.message);
 			})
-			.addCase(deleteSubTask.rejected, (state, action) => {
+			.addCase(deleteSubTask.rejected, (state, { payload }) => {
 				state.loading = false;
-				state.errorMessage = action.error.message;
+				state.errorMessage = payload.message;
 				toast.error(state.errorMessage);
 			});
 
@@ -87,6 +88,19 @@ const subTaskSlice = createSlice({
 				state.loading = false;
 				state.errorMessage = action.error.message;
 				toast.error(state.errorMessage);
+			});
+
+		builder
+			.addCase(getSubTaskById.pending, (state) => {
+				state.loading = true;
+			})
+			.addCase(getSubTaskById.fulfilled, (state, action) => {
+				state.loading = false;
+				state.currentSubTask = action.payload;
+			})
+			.addCase(getSubTaskById.rejected, (state, action) => {
+				state.loading = false;
+				state.errorMessage = action.error.message;
 			});
 	},
 });
@@ -111,16 +125,24 @@ export const addSubTask = createAsyncThunk("task/addSubTask", async (data, { rej
 
 export const updateSubTask = createAsyncThunk("task/updateSubTask", async (data, { rejectWithValue }) => {
 	try {
-		const { data: subTask } = await AxiosJSON.patch("/subtask", data);
+		const url = `/subtask/${data.id}`;
+		console.log(url, data);
+		delete data.id;
+
+		const { data: subTask } = await AxiosJSON({
+			method: "patch",
+			url,
+			data,
+		});
 		return subTask;
 	} catch (err) {
 		return rejectWithValue(err.response.data);
 	}
 });
 
-export const deleteSubTask = createAsyncThunk("task/deleteSubTask", async (data, { rejectWithValue }) => {
+export const deleteSubTask = createAsyncThunk("task/deleteSubTask", async (id, { rejectWithValue }) => {
 	try {
-		const { data: subTask } = await AxiosJSON.delete(`/subtask/${data._id}`);
+		const { data: subTask } = await AxiosJSON.delete(`/subtask/${id}`);
 		return subTask;
 	} catch (err) {
 		return rejectWithValue(err.response.data);
@@ -134,6 +156,15 @@ export const completeSubTask = createAsyncThunk("task/completeSubTask", async (i
 			url: `/subtask/status/${id}`,
 		});
 		return task;
+	} catch (err) {
+		return rejectWithValue(err.response.data);
+	}
+});
+
+export const getSubTaskById = createAsyncThunk("task/getSubTaskById", async (id, { rejectWithValue }) => {
+	try {
+		const { data: subTask } = await AxiosJSON.get(`/subtask/${id}`);
+		return subTask;
 	} catch (err) {
 		return rejectWithValue(err.response.data);
 	}
