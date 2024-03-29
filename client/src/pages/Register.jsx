@@ -1,8 +1,24 @@
-import { Link } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { register } from "../stores/user_slice";
 const Register = () => {
+	const dispatch = useDispatch();
+	const navigate = useNavigate();
 	const onSubmitHandler = (e) => {
 		e.preventDefault();
+		const [username, email, password] = e.target;
+		const data = {
+			username: username.value,
+			email: email.value,
+			password: password.value,
+		};
+
+		dispatch(register(data)).then((res) => {
+			console.log(res.error, !res.error);
+			if (!res.error) {
+				navigate("/login");
+			}
+		});
 	};
 
 	return (
