@@ -54,7 +54,7 @@ module.exports = class UserController {
 			await User.create({
 				username,
 				email,
-				password: hashPass(password),
+				password,
 			});
 
 			res.status(201).json({ message: "Register Success" });

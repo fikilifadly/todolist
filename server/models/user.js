@@ -1,5 +1,6 @@
 "use strict";
 const { Model } = require("sequelize");
+const { hashPass } = require("../lib");
 module.exports = (sequelize, DataTypes) => {
 	class User extends Model {
 		/**
