@@ -73,6 +73,21 @@ const subTaskSlice = createSlice({
 				state.errorMessage = action.error.message;
 				toast.error(state.errorMessage);
 			});
+
+		builder
+			.addCase(completeSubTask.pending, (state) => {
+				state.loading = true;
+			})
+			.addCase(completeSubTask.fulfilled, (state, { payload }) => {
+				state.loading = false;
+				state.currentSubTask = payload;
+				toast.success(payload.message);
+			})
+			.addCase(completeSubTask.rejected, (state, action) => {
+				state.loading = false;
+				state.errorMessage = action.error.message;
+				toast.error(state.errorMessage);
+			});
 	},
 });
 
@@ -107,6 +122,18 @@ export const deleteSubTask = createAsyncThunk("task/deleteSubTask", async (data,
 	try {
 		const { data: subTask } = await AxiosJSON.delete(`/subtask/${data._id}`);
 		return subTask;
+	} catch (err) {
+		return rejectWithValue(err.response.data);
+	}
+});
+
+export const completeSubTask = createAsyncThunk("task/completeSubTask", async (id, { rejectWithValue }) => {
+	try {
+		const { data: task } = await AxiosJSON({
+			method: "patch",
+			url: `/subtask/status/${id}`,
+		});
+		return task;
 	} catch (err) {
 		return rejectWithValue(err.response.data);
 	}

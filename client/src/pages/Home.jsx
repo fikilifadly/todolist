@@ -31,17 +31,13 @@ const Home = () => {
 				data={[
 					{
 						title: "Tasks",
-						total: tasks?.length,
+						data: tasks,
 						loading: taskLoading,
-						complete: tasks?.filter((task) => task.isCompleted).length,
-						ongoing: tasks?.filter((task) => !task.isCompleted).length,
 					},
 					{
 						title: "Subtasks",
-						total: subTasks?.length,
+						data: subTasks,
 						loading: subTaskLoading,
-						complete: subTasks?.filter((task) => task.isCompleted).length,
-						ongoing: subTasks?.filter((task) => !task.isCompleted).length,
 					},
 				]}
 			/>

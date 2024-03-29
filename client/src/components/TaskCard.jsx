@@ -1,10 +1,9 @@
-import { getTaskById } from "../stores/taks_slice";
 import { dateFormat, progressComplete, showModalHandler } from "../utils";
 
-const TaskCard = ({ data, idModal, completeHandler }) => {
+const TaskCard = ({ data, idModal, completeHandler, completeHandlerSubtask, getDataByIdHandler }) => {
 	const ctaHandler = (e) => {
 		const { id, action } = e.target.dataset;
-		getTaskById(id);
+		getDataByIdHandler(id);
 		if (action === "edit") {
 			// console.log(currentClient, "from table====");
 			showModalHandler();
@@ -22,7 +21,17 @@ const TaskCard = ({ data, idModal, completeHandler }) => {
 					{data.SubTasks?.length > 0 ? (
 						data.SubTasks.map((subtask, i) => (
 							<li key={i} className="list-decimal">
-								{subtask.title}
+								<div className="flex justify-between items-center">
+									<p className={subtask.status === "complete" ? "line-through" : ""}>{subtask.title}</p>
+									<input
+										type="checkbox"
+										className="checkbox border border-green-500"
+										data-id={subtask.id}
+										onChange={completeHandlerSubtask}
+										key={i}
+										disabled={subtask.status === "complete"}
+									/>
+								</div>
 							</li>
 						))
 					) : (
@@ -31,25 +40,29 @@ const TaskCard = ({ data, idModal, completeHandler }) => {
 				</ul>
 
 				<div className="flex flex-col gap-2">
-					<p>
-						Due Date: <span className={data.due_date < new Date() ? "text-red-500" : "text-green-500"}>{dateFormat(data.due_date)}</span>
+					<p className="flex justify-between">
+						<span>Due Date:</span>
+						<span className={data.due_date < new Date() ? "text-red-500" : "text-green-500"}>{dateFormat(data.due_date)}</span>
 					</p>
 
-					<p>
-						Status: <span className={`font-bold ${data.status === "complete" ? "text-green-500" : "text-blue-500"}`}>{data.status}</span>
+					<p className="flex justify-between">
+						<span>Status: </span>
+						<span className={`btn h-[2.25rem] min-h-[unset] py-1 px-3 rounded-lg text-white text-center ${data.status === "complete" ? "bg-green-500" : "bg-blue-500"}`}>
+							{data.status}
+						</span>
 					</p>
 
 					<div className="flex gap-5 items-center">
 						<span>Progress: </span>
 						<div className="flex gap-2 items-center">
-							<progress className="progress progress-success w-56" value={progressComplete(data.SubTasks)} max="100"></progress>
-							<span>{progressComplete(data.SubTasks)}%</span>
+							<progress className="progress progress-success w-52" value={data.status === "complete" ? 100 : progressComplete(data.SubTasks)} max="100"></progress>
+							<span>{data.status === "complete" ? "100" : progressComplete(data.SubTasks)}%</span>
 						</div>
 					</div>
 				</div>
 				<div className="flex justify-between">
 					<div className="card-actions">
-						<input type="checkbox" className="checkbox border border-green-500" data-id={data.id} onChange={completeHandler} key={data.id} />
+						<input type="checkbox" className="checkbox border border-green-500" data-id={data.id} onChange={completeHandler} key={data.id} disabled={data.status === "complete"} />
 					</div>
 					<div className="card-actions justify-end">
 						<button className="btn btn-primary" data-id={data.id} data-action="edit" onClick={ctaHandler}>

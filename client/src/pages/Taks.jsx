@@ -4,20 +4,27 @@ import { addTask, completeTask, deleteTask, getTaskById, getTasks, setNullCurren
 import Modal from "../components/Modal";
 import { removeModalHandler, showModalHandler } from "../utils";
 import Cards from "../components/Cards";
+import { Link, useSearchParams } from "react-router-dom";
+import { completeSubTask } from "../stores/subtaks_slice";
 
 const taskField = [
 	["title", "text"],
 	["description", "text"],
+	["SubStack", "text"],
 	["due_date", "date"],
 ];
 
 const Taks = () => {
 	const { tasks, loading, currentTask } = useSelector((state) => state.task);
 
+	const [searchParams] = useSearchParams();
+	const status = searchParams.get("status");
+
+	console.log(currentTask, "tasks page");
 	const dispatch = useDispatch();
 	useEffect(() => {
-		dispatch(getTasks(false));
-	}, []);
+		dispatch(getTasks(status));
+	}, [status, dispatch]);
 
 	const submitModalHandler = (e) => {
 		e.preventDefault();
@@ -75,6 +82,13 @@ const Taks = () => {
 		});
 	};
 
+	const completeHandlerSubtask = (e) => {
+		const { id } = e.target.dataset;
+		dispatch(completeSubTask(id));
+	};
+
+	console.log(tasks, "====task page");
+
 	return (
 		<div className="flex flex-col gap-5">
 			<div className="flex justify-between items-center">
@@ -83,8 +97,27 @@ const Taks = () => {
 					Add
 				</button>
 			</div>
-			{/* <Table fields={roomFields} data={rooms} loading={loading} idModal="deleteRoom" getDataByIdHandler={getTaskByIdHandler} /> */}
-			<Cards data={tasks} idModal="deleteTask" completeHandler={completeHandler} getDataByIdHandler={getTaskByIdHandler} type="task" />
+
+			<div className="flex gap-2">
+				<Link to={"/tasks?status=ongoing"} className="btn bg-blue-500 text-white shadow-md">
+					On Going
+				</Link>
+				<Link to={"/tasks?status=complete"} className="btn bg-green-500 text-white shadow-md">
+					Completed
+				</Link>
+			</div>
+			{!loading && tasks.length > 0 ? (
+				<Cards
+					data={tasks}
+					type="tasks"
+					idModal={"deleteTask"}
+					completeHandler={completeHandler}
+					completeHandlerSubtask={completeHandlerSubtask}
+					getDataByIdHandler={getTaskByIdHandler}
+				/>
+			) : (
+				<p className="text-center text-xl text-red-500 font-bold">{loading ? <span className="loading loading-spinner"></span> : "No Task Found"}</p>
+			)}
 			<Modal title="Task Form">
 				<form className="flex flex-col" onSubmit={submitModalHandler}>
 					{taskField.map((el, i) => {
@@ -102,7 +135,9 @@ const Taks = () => {
 			</Modal>
 			<Modal id="deleteTask">
 				<div className="getflex flex-col gap-5">
-					<p className="block">Are you sure want to delete {currentTask?.title}?</p>
+					<p className="block">
+						Are you sure want to delete <span className="font-bold">{currentTask?.title}</span> ?
+					</p>
 					<div className="flex justify-end gap-2">
 						<button className="btn bg-red-500 text-white" onClick={deleteHandler}>
 							Yes

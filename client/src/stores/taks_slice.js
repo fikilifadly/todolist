@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { AxiosJSON } from "../utils";
+import { AxiosJSON, dateFormat } from "../utils";
 import { toast } from "react-toastify";
 
 const taskSlice = createSlice({
@@ -18,18 +18,13 @@ const taskSlice = createSlice({
 	extraReducers: (builder) => {
 		builder
 			.addCase(getTasks.pending, (state) => {
-				console.log("first");
-
 				state.loading = true;
 			})
 			.addCase(getTasks.fulfilled, (state, action) => {
-				console.log("first2");
-				console.log(action);
 				state.loading = false;
 				state.tasks = action.payload;
 			})
 			.addCase(getTasks.rejected, (state, action) => {
-				console.log(action);
 				state.loading = false;
 				state.errorMessage = action.error.message;
 				toast.error(state.errorMessage);
@@ -42,7 +37,6 @@ const taskSlice = createSlice({
 			.addCase(addTask.fulfilled, (state, { payload }) => {
 				state.errorMessage = "";
 				state.loading = false;
-				console.log(payload, "======= fulfile");
 				toast.success(payload.message);
 			})
 			.addCase(addTask.rejected, (state, action) => {
@@ -74,7 +68,7 @@ const taskSlice = createSlice({
 			.addCase(deleteTask.fulfilled, (state, { payload }) => {
 				state.errorMessage = "";
 				state.loading = false;
-				toast.success(payload.data.message);
+				toast.success(payload.message);
 			})
 			.addCase(deleteTask.rejected, (state, action) => {
 				state.loading = false;
@@ -118,12 +112,8 @@ export const getTasks = createAsyncThunk("task/getTasks", async (data, { rejectW
 		let url = "/task";
 
 		if (data) {
-			url = url + "?isComplete=true";
-		} else {
-			url = url + "?isComplete=false";
+			url = url + `?status=${data}`;
 		}
-
-		console.log(url, "====");
 
 		const { data: task } = await AxiosJSON({
 			method: "GET",
@@ -153,9 +143,9 @@ export const updateTask = createAsyncThunk("task/updateTask", async (data, { rej
 	}
 });
 
-export const deleteTask = createAsyncThunk("task/deleteTask", async (data, { rejectWithValue }) => {
+export const deleteTask = createAsyncThunk("task/deleteTask", async (id, { rejectWithValue }) => {
 	try {
-		const { data: task } = await AxiosJSON.delete(`/task/${data._id}`);
+		const { data: task } = await AxiosJSON.delete(`/task/${id}`);
 		return task;
 	} catch (err) {
 		return rejectWithValue(err.response.data);
@@ -164,7 +154,12 @@ export const deleteTask = createAsyncThunk("task/deleteTask", async (data, { rej
 
 export const getTaskById = createAsyncThunk("task/getTaskById", async (id, { rejectWithValue }) => {
 	try {
-		const { data: task } = await AxiosJSON.get(`/task/${id}`);
+		let { data: task } = await AxiosJSON.get(`/task/${id}`);
+
+		task = {
+			...task,
+			due_date: dateFormat(task.due_date),
+		};
 		return task;
 	} catch (err) {
 		return rejectWithValue(err.response.data);
@@ -174,7 +169,7 @@ export const getTaskById = createAsyncThunk("task/getTaskById", async (id, { rej
 export const completeTask = createAsyncThunk("task/completeTask", async (id, { rejectWithValue }) => {
 	try {
 		const { data: task } = await AxiosJSON({
-			method: "PATCH",
+			method: "patch",
 			url: `/task/${id}`,
 			data: {
 				status: "complete",
